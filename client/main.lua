@@ -1,9 +1,9 @@
-
 local QBCore = exports['qb-core']:GetCoreObject()
-local hunger, thirst = 100, 100
+local hunger, thirst = Config.DefaultHunger, Config.DefaultThirst
+
 local function sendNotification(message)
     if Config.NotificationType == 'qbcore' then
-        QBCore.Functions.Notify(message, 'error', 5000)
+        QBCore.Functions.Notify(message, 'warning', 5000)
     elseif Config.NotificationType == 'okokNotify' then
         exports['okokNotify']:Alert('Notification', message, 5000, 'error')
     elseif Config.NotificationType == 'mythic' then
@@ -16,12 +16,27 @@ end
 CreateThread(function()
     while true do
         local playerPed = PlayerPedId()
-        local health = GetEntityHealth(playerPed) - 100 
-        hunger = QBCore.Functions.GetPlayerData().metadata['hunger']
-        thirst = QBCore.Functions.GetPlayerData().metadata['thirst']
-        local isHealthLow = health < Config.HealthThreshold
-        local isHungerLow = hunger < Config.HungerThreshold
-        local isThirstLow = thirst < Config.ThirstThreshold
+        local health = GetEntityHealth(playerPed) - 100
+        
+        -- Ambil data player secara aman
+        local playerData = QBCore.Functions.GetPlayerData()
+
+        -- Periksa apakah metadata 'hunger' dan 'thirst' ada sebelum diakses
+        if playerData.metadata and playerData.metadata['hunger'] and playerData.metadata['thirst'] then
+            hunger = playerData.metadata['hunger']
+            thirst = playerData.metadata['thirst']
+        else
+            -- Jika metadata tidak ditemukan, gunakan nilai dari config
+            hunger = Config.DefaultHunger
+            thirst = Config.DefaultThirst
+        end
+
+        -- Cek kondisi hanya jika notifikasi diaktifkan di config
+        local isHealthLow = Config.EnableHealthNotification and (health < Config.HealthThreshold)
+        local isHungerLow = Config.EnableHungerNotification and (hunger < Config.HungerThreshold)
+        local isThirstLow = Config.EnableThirstNotification and (thirst < Config.ThirstThreshold)
+
+        -- Cek kondisi dan kirim notifikasi sesuai kondisi
         if isHealthLow and isHungerLow and isThirstLow then
             sendNotification(Config.Notifications.AllLow)
         elseif isHealthLow and isHungerLow then
@@ -37,6 +52,8 @@ CreateThread(function()
         elseif isThirstLow then
             sendNotification(Config.Notifications.ThirstLow)
         end
-        Wait(Config.CheckInterval) 
+
+        -- Interval pengecekan
+        Wait(Config.CheckInterval)
     end
 end)
