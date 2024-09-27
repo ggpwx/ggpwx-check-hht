@@ -14,12 +14,21 @@ Config = {}
 Config.NotificationType = 'qbcore'
 
 -- Thresholds for notifications
-Config.HealthThreshold = 99 -- Health below 25%
-Config.HungerThreshold = 99 -- Hunger below 30%
-Config.ThirstThreshold = 99 -- Thirst below 30%
+Config.HealthThreshold = 20 -- Health below this threshold
+Config.HungerThreshold = 20 -- Hunger below this threshold
+Config.ThirstThreshold = 20 -- Thirst below this threshold
 
 -- Check interval (in milliseconds)
-Config.CheckInterval = 10000 -- 1 minute (60000 ms)
+Config.CheckInterval = 10000 -- 10 seconds
+
+-- Default values if metadata is missing or not available
+Config.DefaultHunger = 100 -- Default hunger level
+Config.DefaultThirst = 100 -- Default thirst level
+
+-- Enable/disable individual notifications
+Config.EnableHealthNotification = true  -- Set to true to enable health notifications
+Config.EnableHungerNotification = true  -- Set to true to enable hunger notifications
+Config.EnableThirstNotification = true  -- Set to true to enable thirst notifications
 
 -- Notifications
 Config.Notifications = {
@@ -31,3 +40,5 @@ Config.Notifications = {
     HungerAndThirstLow = "Your hunger and thirst are critically low!",
     AllLow = "You are critically low on health, food, and water!"
 }
+
+
